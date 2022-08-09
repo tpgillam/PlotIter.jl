@@ -43,7 +43,6 @@ for dim in (:x, :y, :z)
     end
 end
 
-"""Create a 'blank' plot."""
 _blank_plot() = plot(; legend=false, grid=false, foreground_color_subplot=:white)
 
 function _display_row(plots, num_cols::Integer, row_size)
