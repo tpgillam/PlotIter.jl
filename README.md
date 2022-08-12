@@ -25,4 +25,4 @@ end;
 ```
 ![Example](/docs/src/assets/example_sin.png)
 
-For further usage information, please refer to the [documentation](https://tpgillam.github.io/PlotIter.jl/stable/), and the example notebook at `examples/example.ipynb`.
+For further usage information, please refer to the [documentation](https://tpgillam.github.io/PlotIter.jl/stable/), and the [example notebook](/examples/example.ipynb).
