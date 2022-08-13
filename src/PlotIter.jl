@@ -1,12 +1,29 @@
 module PlotIter
 
-export xlims_convex_hull!, ylims_convex_hull!, zlims_convex_hull!
+export xlims_convex_hull!, ylims_convex_hull!, zlims_convex_hull!, clims_convex_hull!
 export NoDisplay, DisplayEachRow, DisplayAtEnd
 export plot_iter
 
 using Plots
 
-for dim in (:x, :y, :z)
+# Functions for accessing and modifying colour limits.
+# Possibly these could belong inside Plots.jl
+clims(sp::Plots.Subplot) = Plots.get_clims(sp)
+clims(p::Plots.Plot, sp_idx::Int=1) = clims(p[sp_idx])
+function clims!(p::Plots.Subplot, lims::Tuple{Float64,Float64})
+    p.attr[:clims_calculated] = lims
+    return p
+end
+clims!(p::Plots.Subplot, cmin::Real, cmax::Real) = clims!(p, Float64.((cmin, cmax)))
+function clims!(p::Plots.Plot, cmin::Real, cmax::Real)
+    # TODO Work out if applying clims to each subplot is the equivalent behaviour of xlims!
+    foreach(1:length(p)) do sp_idx
+        sp = p[sp_idx]
+        clims!(sp, cmin, cmax)
+    end
+end
+
+for dim in (:x, :y, :z, :c)
     dim_str = string(dim)
     func! = Symbol(dim, "lims_convex_hull!")
     lims = Symbol(dim, "lims")
@@ -16,8 +33,8 @@ for dim in (:x, :y, :z)
             $($func!)(plots)
             $($func!)(plots...)
 
-        Set the $($dim_str)-axis limits for all `plots` to the smallest interval that contains
-        all the existing $($dim_str)-axis limits.
+        Set the $($dim_str)-axis limits for all `plots` to the smallest interval that
+        contains all the existing $($dim_str)-axis limits.
 
         This is useful to ensure that two plots are visually comparable.
         """
