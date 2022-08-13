@@ -125,6 +125,8 @@ This function avoids the need to manually construct a layout for this simple cas
     This requires the `display_mode` to be [`NoDisplay`](@ref) or [`DisplayAtEnd`](@ref).
 - `zlims_convex_hull::Bool=false`: Iff true, call [`zlims_convex_hull!`](@ref) on all plots.
     This requires the `display_mode` to be [`NoDisplay`](@ref) or [`DisplayAtEnd`](@ref).
+- `clims_convex_hull::Bool=false`: Iff true, call [`clims_convex_hull!`](@ref) on all plots.
+    This requires the `display_mode` to be [`NoDisplay`](@ref) or [`DisplayAtEnd`](@ref).
 - `kwargs...`: Any other keyword arguments specified will be forwarded to the
 
 # Returns
@@ -158,11 +160,12 @@ function plot_iter(
     xlims_convex_hull::Bool=false,
     ylims_convex_hull::Bool=false,
     zlims_convex_hull::Bool=false,
+    clims_convex_hull::Bool=false,
     kwargs...,
 )
     row_size = (row_width, row_height)
 
-    if (xlims_convex_hull || ylims_convex_hull || zlims_convex_hull)
+    if (xlims_convex_hull || ylims_convex_hull || zlims_convex_hull || clims_convex_hull)
         # If using any arguments that require all plots to have been generated prior to
         # displaying, ensure that our displaymode is correct.
         if !isa(display_mode, Union{NoDisplay,DisplayAtEnd})
@@ -207,6 +210,7 @@ function plot_iter(
     xlims_convex_hull && xlims_convex_hull!(all_plots)
     ylims_convex_hull && ylims_convex_hull!(all_plots)
     zlims_convex_hull && zlims_convex_hull!(all_plots)
+    clims_convex_hull && clims_convex_hull!(all_plots)
 
     if isa(display_mode, DisplayAtEnd)
         for row_plots in Iterators.partition(all_plots, num_cols)
