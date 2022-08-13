@@ -158,10 +158,10 @@ function plot_iter(
     end
 
     # A vector of all subplots that we generate; we will return this.
-    all_plots = []
+    all_plots = AbstractPlot[]
 
     # A temporary store of plots prior to displaying.
-    current_plots = []
+    current_plots = AbstractPlot[]
 
     function flush_plots!()
         @assert length(current_plots) <= num_cols

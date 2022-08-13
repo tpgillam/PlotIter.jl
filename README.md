@@ -12,12 +12,17 @@ You're in a Jupyter notebook, and have some `things`.
 You would like to make a plot based on each `thing`:
 ```julia
 # Example data
-things = [(; title="A", data=1:3), (; title="B", data=4:10), (; title="C", data=-5:5)]
+x = 1.0:0.01:4*pi
+things = [
+    (; title="A", w=1), (; title="B", w=2), (; title="C", w=3), 
+    (; title="D", w=4), (; title="E", w=5), 
+];
 
 # Make some plots!
-plot_iter(things) do thing
-    plot!(thing.data; title=thing.title)
-end
+plot_iter(things; ylims_convex_hull=true) do thing
+    plot!(x, sin.(x) .* thing.w; title=thing.title)
+end;
 ```
+![Example](/docs/src/assets/example_sin.png)
 
-For further usage information, please refer to the [documentation](https://tpgillam.github.io/PlotIter.jl/stable/).
+For further usage information, please refer to the [documentation](https://tpgillam.github.io/PlotIter.jl/stable/), and the [example notebook](/examples/example.ipynb).
