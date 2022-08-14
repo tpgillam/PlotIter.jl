@@ -17,4 +17,5 @@ These functions are used internally by [`plot_iter`](@ref), but they can also be
 xlims_convex_hull!
 ylims_convex_hull!
 zlims_convex_hull!
+clims_convex_hull!
 ```

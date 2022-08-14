@@ -1,7 +1,7 @@
 name = "PlotIter"
 uuid = "570a651b-f435-48ab-b76d-fb07b459bafb"
 authors = ["Tom Gillam <tpgillam@googlemail.com>"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"

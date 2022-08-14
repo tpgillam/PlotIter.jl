@@ -1,12 +1,29 @@
 module PlotIter
 
-export xlims_convex_hull!, ylims_convex_hull!, zlims_convex_hull!
+export xlims_convex_hull!, ylims_convex_hull!, zlims_convex_hull!, clims_convex_hull!
 export NoDisplay, DisplayEachRow, DisplayAtEnd
 export plot_iter
 
 using Plots
 
-for dim in (:x, :y, :z)
+# Functions for accessing and modifying colour limits.
+# Possibly these could belong inside Plots.jl
+clims(sp::Plots.Subplot) = Plots.get_clims(sp)
+clims(p::Plots.Plot, sp_idx::Int=1) = clims(p[sp_idx])
+function clims!(p::Plots.Subplot, lims::Tuple{Float64,Float64})
+    p.attr[:clims_calculated] = lims
+    return p
+end
+clims!(p::Plots.Subplot, cmin::Real, cmax::Real) = clims!(p, Float64.((cmin, cmax)))
+function clims!(p::Plots.Plot, cmin::Real, cmax::Real)
+    # TODO Work out if applying clims to each subplot is the equivalent behaviour of xlims!
+    foreach(1:length(p)) do sp_idx
+        sp = p[sp_idx]
+        clims!(sp, cmin, cmax)
+    end
+end
+
+for dim in (:x, :y, :z, :c)
     dim_str = string(dim)
     func! = Symbol(dim, "lims_convex_hull!")
     lims = Symbol(dim, "lims")
@@ -16,8 +33,8 @@ for dim in (:x, :y, :z)
             $($func!)(plots)
             $($func!)(plots...)
 
-        Set the $($dim_str)-axis limits for all `plots` to the smallest interval that contains
-        all the existing $($dim_str)-axis limits.
+        Set the $($dim_str)-axis limits for all `plots` to the smallest interval that
+        contains all the existing $($dim_str)-axis limits.
 
         This is useful to ensure that two plots are visually comparable.
         """
@@ -108,6 +125,8 @@ This function avoids the need to manually construct a layout for this simple cas
     This requires the `display_mode` to be [`NoDisplay`](@ref) or [`DisplayAtEnd`](@ref).
 - `zlims_convex_hull::Bool=false`: Iff true, call [`zlims_convex_hull!`](@ref) on all plots.
     This requires the `display_mode` to be [`NoDisplay`](@ref) or [`DisplayAtEnd`](@ref).
+- `clims_convex_hull::Bool=false`: Iff true, call [`clims_convex_hull!`](@ref) on all plots.
+    This requires the `display_mode` to be [`NoDisplay`](@ref) or [`DisplayAtEnd`](@ref).
 - `kwargs...`: Any other keyword arguments specified will be forwarded to the
 
 # Returns
@@ -141,11 +160,12 @@ function plot_iter(
     xlims_convex_hull::Bool=false,
     ylims_convex_hull::Bool=false,
     zlims_convex_hull::Bool=false,
+    clims_convex_hull::Bool=false,
     kwargs...,
 )
     row_size = (row_width, row_height)
 
-    if (xlims_convex_hull || ylims_convex_hull || zlims_convex_hull)
+    if (xlims_convex_hull || ylims_convex_hull || zlims_convex_hull || clims_convex_hull)
         # If using any arguments that require all plots to have been generated prior to
         # displaying, ensure that our displaymode is correct.
         if !isa(display_mode, Union{NoDisplay,DisplayAtEnd})
@@ -190,6 +210,7 @@ function plot_iter(
     xlims_convex_hull && xlims_convex_hull!(all_plots)
     ylims_convex_hull && ylims_convex_hull!(all_plots)
     zlims_convex_hull && zlims_convex_hull!(all_plots)
+    clims_convex_hull && clims_convex_hull!(all_plots)
 
     if isa(display_mode, DisplayAtEnd)
         for row_plots in Iterators.partition(all_plots, num_cols)

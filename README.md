@@ -11,6 +11,9 @@ You're in a Jupyter notebook, and have some `things`.
 
 You would like to make a plot based on each `thing`:
 ```julia
+using PlotIter
+using Plots
+
 # Example data
 x = 1.0:0.01:4*pi
 things = [
