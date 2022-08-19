@@ -127,7 +127,8 @@ This function avoids the need to manually construct a layout for this simple cas
     This requires the `display_mode` to be [`NoDisplay`](@ref) or [`DisplayAtEnd`](@ref).
 - `clims_convex_hull::Bool=false`: Iff true, call [`clims_convex_hull!`](@ref) on all plots.
     This requires the `display_mode` to be [`NoDisplay`](@ref) or [`DisplayAtEnd`](@ref).
-- `kwargs...`: Any other keyword arguments specified will be forwarded to the
+- `kwargs...`: Any other keyword arguments specified will be forwarded to an initial call to
+    `plot`.
 
 # Returns
 A vector of all plots that have been generated.
