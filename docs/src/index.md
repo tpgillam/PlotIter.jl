@@ -1,6 +1,8 @@
 # PlotIter
 
-Documentation for [PlotIter](https://github.com/tpgillam/PlotIter.jl).
+API documentation for [PlotIter](https://github.com/tpgillam/PlotIter.jl).
+
+For usage examples, please see the [example notebook](https://github.com/tpgillam/PlotIter.jl/blob/main/examples/example.ipynb).
 
 ## Plotting things from an iterable
 ```@docs
