@@ -14,6 +14,8 @@ function _test_lims_in_range(lims::Tuple, range)
     @test last(lims) <= last(range)
 end
 
+_allequal(things) = all(isequal(first(things)), things)
+
 @testset "PlotIter.jl" begin
     @testset "xyzlims_convex_hull!" begin
         range1 = 1:10
@@ -71,5 +73,55 @@ end
         lims2 = PlotIter.clims(hm2)
         @test lims1 == lims2
         _test_lims_in_range(lims1, (0, 15))
+    end
+
+    @testset "plot_iter" begin
+        x = 1.0:0.01:(4 * pi)
+        things = [
+            (; title="A", w=1),
+            (; title="B", w=2),
+            (; title="C", w=3),
+            (; title="D", w=4),
+            (; title="E", w=5),
+        ]
+
+        for (xch, ych, zch, cch) in
+            Iterators.product(Iterators.repeated([false, true], 4)...)
+            for num_cols in 1:4
+                for (row_width, row_height) in [(800, 300), (400, 100)]
+                    # Suppress visual output of any plots when calling `show` internally.
+                    all_plots = withenv("GKSwstype" => "nul") do
+                        plot_iter(
+                            things;
+                            num_cols=num_cols,
+                            row_width=row_width,
+                            row_height=row_height,
+                            xlims_convex_hull=xch,
+                            ylims_convex_hull=ych,
+                            zlims_convex_hull=zch,
+                            clims_convex_hull=cch,
+                        ) do thing
+                            plot!(x .+ thing.w, sin.(x) .* thing.w; title=thing.title)
+                        end
+                    end
+
+                    # We have access to all the plots that were made, so can check those.
+                    @test all_plots isa Vector{<:AbstractPlot}
+                    @test length(all_plots) == length(things)
+                    xch && @test _allequal(xlims.(all_plots))
+                    ych && @test _allequal(ylims.(all_plots))
+                    zch && @test _allequal(zlims.(all_plots))
+                    cch && @test _allequal(PlotIter.clims.(all_plots))
+
+                    # We can also verify some properties about the rows emitted, since the
+                    # last row will still be the "current" plot.
+                    last_row = Plots.current()
+                    @test length(last_row) == num_cols
+
+                    # Test row width and height match expectation.
+                    @test last_row.attr[:size] == (row_width, row_height)
+                end
+            end
+        end
     end
 end

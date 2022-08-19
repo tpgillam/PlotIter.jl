@@ -113,8 +113,8 @@ This function avoids the need to manually construct a layout for this simple cas
 
 # Keyword arguments
 - `num_cols::Integer=3`: The number of of plots to put side-by-side.
-- `row_height=300`: The vertical extent of each plot.
 - `row_width=900`: The width of each row (that is for _all_ plots in the row)
+- `row_height=300`: The vertical extent of each plot.
 - `display_mode::DisplayMode=DisplayAtEnd()`: An instance of:
     - [`NoDisplay`](@ref): Don't `show` the plots.
     - [`DisplayEachRow`](@ref): Every time a row of plots is complete, `show` it.
@@ -127,7 +127,8 @@ This function avoids the need to manually construct a layout for this simple cas
     This requires the `display_mode` to be [`NoDisplay`](@ref) or [`DisplayAtEnd`](@ref).
 - `clims_convex_hull::Bool=false`: Iff true, call [`clims_convex_hull!`](@ref) on all plots.
     This requires the `display_mode` to be [`NoDisplay`](@ref) or [`DisplayAtEnd`](@ref).
-- `kwargs...`: Any other keyword arguments specified will be forwarded to the
+- `kwargs...`: Any other keyword arguments specified will be forwarded to an initial call to
+    `plot`.
 
 # Returns
 A vector of all plots that have been generated.
@@ -154,8 +155,8 @@ function plot_iter(
     f::Function,
     @nospecialize(iterable);
     num_cols::Integer=3,
-    row_height=300,
     row_width=900,
+    row_height=300,
     display_mode::DisplayMode=DisplayAtEnd(),
     xlims_convex_hull::Bool=false,
     ylims_convex_hull::Bool=false,

@@ -28,4 +28,20 @@ end;
 ```
 ![Example](/docs/src/assets/example_sin.png)
 
+Maybe you would like to ensure color scales match in all of them too:
+```julia
+plot_iter(
+        things;
+        row_height=200,
+        xlims_convex_hull=true, ylims_convex_hull=true, clims_convex_hull=true,
+    ) do thing
+    n = 10^(1 + thing.w)
+    x = randn(Float64, n)
+    y = randn(Float64, n)
+    histogram2d!(x .* thing.w, y; title=thing.title, colorbar_scale=:log10)
+end;
+```
+![Example](/docs/src/assets/example_dist.png)
+
+
 For further usage information, please refer to the [documentation](https://tpgillam.github.io/PlotIter.jl/stable/), and the [example notebook](/examples/example.ipynb).
