@@ -61,6 +61,35 @@ _allequal(things) = all(isequal(first(things)), things)
         _test_lims_cover_range(lims1, 1:15)
     end
 
+    @testset "ylims_convex_hull_twinx" begin
+        # Ensure that we correctly scale each y-axis separately when we have a secondary
+        # axis created with twinx.
+        range1 = 1:10
+        range2 = 3:15
+        range3 = 4:19
+        range4 = 10:25
+
+        p1 = plot(range1, range1)
+        plot!(twinx(p1), range2, range2)
+        @test length(p1.subplots) == 2
+        _test_lims_cover_range(ylims(p1.subplots[1]), range1)
+        _test_lims_cover_range(ylims(p1.subplots[2]), range2)
+
+        p2 = plot(range3, range3)
+        plot!(twinx(p2), range4, range4)
+        @test length(p2.subplots) == 2
+        _test_lims_cover_range(ylims(p2.subplots[1]), range3)
+        _test_lims_cover_range(ylims(p2.subplots[2]), range4)
+
+        ylims_convex_hull!(p1, p2)
+
+        @test ylims(p1.subplots[1]) == ylims(p2.subplots[1])
+        @test ylims(p1.subplots[2]) == ylims(p2.subplots[2])
+
+        _test_lims_cover_range(ylims(p1.subplots[1]), 1:19)
+        _test_lims_cover_range(ylims(p1.subplots[2]), 3:25)
+    end
+
     @testset "clims_convex_hull!" begin
         hm1 = heatmap(10 .* rand(5, 5))
         hm2 = heatmap(3 .+ 12 .* rand(5, 5))

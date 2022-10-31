@@ -16,7 +16,6 @@ function clims!(p::Plots.Subplot, lims::Tuple{Float64,Float64})
 end
 clims!(p::Plots.Subplot, cmin::Real, cmax::Real) = clims!(p, Float64.((cmin, cmax)))
 function clims!(p::Plots.Plot, cmin::Real, cmax::Real)
-    # TODO Work out if applying clims to each subplot is the equivalent behaviour of xlims!
     foreach(1:length(p)) do sp_idx
         sp = p[sp_idx]
         clims!(sp, cmin, cmax)
@@ -36,16 +35,21 @@ for dim in (:x, :y, :z, :c)
         Set the $($dim_str)-axis limits for all `plots` to the smallest interval that
         contains all the existing $($dim_str)-axis limits.
 
+        If the arguments are `Subplot`s, then there is no ambiguity over the limits of a
+        given argument. However, if they are `Plot`s, then we do the following:
+            * Let `n` be the minimum number of subplots across all arguments.
+            * For `i` in `1:n`, apply $($func!) to the all of the `i`th subplots.
+
         This is useful to ensure that two plots are visually comparable.
         """
         function $func!(
-            plots::Union{Tuple{Vararg{AbstractPlot}},AbstractVector{<:AbstractPlot}}
+            plots::Union{Tuple{Vararg{Plots.Subplot}},AbstractVector{<:Plots.Subplot}}
         )
             isempty(plots) && throw(ArgumentError("Need at least one plot."))
 
-            (x_min, x_max) = $lims(first(plots))
+            x_min, x_max = $lims(first(plots))
             for p in plots[2:end]
-                (this_x_min, this_x_max) = $lims(p)
+                this_x_min, this_x_max = $lims(p)
                 x_min = min(x_min, this_x_min)
                 x_max = max(x_max, this_x_max)
             end
@@ -56,7 +60,30 @@ for dim in (:x, :y, :z, :c)
 
             return nothing
         end
-        $func!(plots::AbstractPlot...) = $func!(plots)
+        $func!(plots::Plots.Subplot...) = $func!(plots)
+
+        function $func!(
+            plots::Union{Tuple{Vararg{AbstractPlot}},AbstractVector{<:AbstractPlot}}
+        )
+            isempty(plots) && throw(ArgumentError("Need at least one plot."))
+
+            # Determine the number of subplots for which we can apply convex hull behaviour.
+            n = minimum(
+                map(plots) do p
+                    length(p.subplots)
+                end,
+            )
+
+            # Apply convex hull logic.
+            for i in 1:n
+                $func!(
+                    map(plots) do p
+                        p.subplots[i]
+                    end,
+                )
+            end
+        end
+        $func!(plots::Plots.AbstractPlot...) = $func!(plots)
     end
 end
 
